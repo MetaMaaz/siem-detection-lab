@@ -1,0 +1,31 @@
+title: PowerShell Encoded Command Execution
+id: 089cedd7-e63c-4b76-94ce-4ff517afb760
+status: experimental
+description: Detects PowerShell launched with an encoded command or a download cradle, common in phishing payloads and post-exploitation.
+references:
+  - https://attack.mitre.org/techniques/T1059/001/
+author: Maaz Husain
+date: 2026-07-02
+tags:
+  - attack.execution
+  - attack.t1059.001
+logsource:
+  product: windows
+  category: process_creation
+detection:
+  selection_img:
+    Image|endswith:
+      - '\powershell.exe'
+      - '\pwsh.exe'
+  selection_cli:
+    CommandLine|contains:
+      - '-EncodedCommand'
+      - '-enc '
+      - 'IEX('
+      - 'Invoke-Expression'
+      - 'Net.WebClient'
+      - 'DownloadString'
+  condition: selection_img and selection_cli
+falsepositives:
+  - Legitimate admin scripts and some installers use encoded commands; baseline before alerting at high severity
+level: high

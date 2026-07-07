@@ -1,0 +1,86 @@
+<!--
+  Wazuh custom detection rules for the SIEM Detection Lab.
+  Install: append to /var/ossec/etc/rules/local_rules.xml on the Wazuh manager,
+  then restart the manager. Rule IDs 100100+ are in the safe user range.
+
+  These are the Wazuh equivalents of the portable Sigma rules in ../rules/.
+  Sysmon is forwarded via the windows_eventchannel decoder (Wazuh built-in).
+-->
+<group name="detection_lab,windows,">
+
+  <!-- T1110 Brute force: 6 failed logons in 120s from one agent -->
+  <rule id="100100" level="10" frequency="6" timeframe="120">
+    <if_matched_sid>60122</if_matched_sid>   <!-- Windows logon failure 4625 -->
+    <!-- eventchannel logs carry the source in win.eventdata.ipAddress, not srcip,
+         so same_source_ip never matches here -->
+    <same_field>win.eventdata.ipAddress</same_field>
+    <description>Possible brute force: 6+ failed logons in 120s (T1110)</description>
+    <mitre><id>T1110</id></mitre>
+  </rule>
+
+  <!-- T1059.001 PowerShell encoded command / download cradle -->
+  <rule id="100101" level="12">
+    <if_group>sysmon_event1</if_group>
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)(-enc(odedcommand)?\s|IEX\(|Invoke-Expression|Net\.WebClient|DownloadString)</field>
+    <description>PowerShell encoded command or download cradle (T1059.001)</description>
+    <mitre><id>T1059.001</id></mitre>
+  </rule>
+
+  <!-- T1566.001 Office app spawning a shell -->
+  <rule id="100102" level="12">
+    <if_group>sysmon_event1</if_group>
+    <field name="win.eventdata.parentImage" type="pcre2">(?i)\\(winword|excel|powerpnt|outlook)\.exe$</field>
+    <field name="win.eventdata.image" type="pcre2">(?i)\\(cmd|powershell|pwsh|wscript|cscript)\.exe$</field>
+    <description>Office application spawned a shell - likely malicious macro (T1566.001)</description>
+    <mitre><id>T1566.001</id></mitre>
+  </rule>
+
+  <!-- T1547.001 Registry Run key persistence (Sysmon 13) -->
+  <rule id="100103" level="8">
+    <if_group>sysmon_event_13</if_group>
+    <field name="win.eventdata.targetObject" type="pcre2">(?i)\\CurrentVersion\\Run(Once)?\\</field>
+    <description>New Run/RunOnce registry value - persistence (T1547.001)</description>
+    <mitre><id>T1547.001</id></mitre>
+  </rule>
+
+  <!-- T1136.001 New local account created -->
+  <rule id="100104" level="10">
+    <if_sid>60109</if_sid>   <!-- 4720 user account created -->
+    <description>New local user account created (T1136.001)</description>
+    <mitre><id>T1136.001</id></mitre>
+  </rule>
+
+  <!-- T1136.001 Member added to local Administrators (4732, group SID S-1-5-32-544) -->
+  <rule id="100108" level="12">
+    <if_sid>60144</if_sid>   <!-- 4732 member added to security-enabled local group -->
+    <field name="win.eventdata.targetSid" type="pcre2">^S-1-5-32-544$</field>
+    <description>Account added to local Administrators group (T1136.001)</description>
+    <mitre><id>T1136.001</id></mitre>
+  </rule>
+
+  <!-- T1105 Certutil download -->
+  <rule id="100105" level="12">
+    <if_group>sysmon_event1</if_group>
+    <field name="win.eventdata.image" type="pcre2">(?i)\\certutil\.exe$</field>
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)(urlcache|-split|http)</field>
+    <description>Certutil used to download a file - LOLBin abuse (T1105)</description>
+    <mitre><id>T1105</id></mitre>
+  </rule>
+
+  <!-- T1070.001 Security log cleared -->
+  <rule id="100106" level="12">
+    <if_sid>60117</if_sid>   <!-- 1102 audit log cleared (60106 is logon success!) -->
+    <description>Windows Security event log cleared - anti-forensics (T1070.001)</description>
+    <mitre><id>T1070.001</id></mitre>
+  </rule>
+
+  <!-- T1003.001 LSASS memory access (Sysmon 10) -->
+  <rule id="100107" level="14">
+    <if_group>sysmon_event_10</if_group>
+    <field name="win.eventdata.targetImage" type="pcre2">(?i)\\lsass\.exe$</field>
+    <field name="win.eventdata.grantedAccess" type="pcre2">(?i)0x(1010|1410|1fffff)</field>
+    <description>Suspicious LSASS memory access - credential dumping (T1003.001)</description>
+    <mitre><id>T1003.001</id></mitre>
+  </rule>
+
+</group>

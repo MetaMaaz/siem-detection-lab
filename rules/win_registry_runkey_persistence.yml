@@ -1,0 +1,23 @@
+title: Persistence via Registry Run Key
+id: 1245957b-7846-4da8-95fc-106a2c544f53
+status: experimental
+description: Detects new values written to Run/RunOnce registry keys (Sysmon Event ID 13), a very common persistence mechanism.
+references:
+  - https://attack.mitre.org/techniques/T1547/001/
+author: Maaz Husain
+date: 2026-07-02
+tags:
+  - attack.persistence
+  - attack.t1547.001
+logsource:
+  product: windows
+  category: registry_set
+detection:
+  selection:
+    TargetObject|contains:
+      - '\Microsoft\Windows\CurrentVersion\Run\'
+      - '\Microsoft\Windows\CurrentVersion\RunOnce\'
+  condition: selection
+falsepositives:
+  - Software installers legitimately write Run keys; baseline common installers
+level: medium

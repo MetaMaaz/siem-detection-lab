@@ -1,0 +1,24 @@
+title: New Local Account Created or Added to Administrators
+id: 315c3111-2fd7-4800-8acf-24cb5927ac81
+status: experimental
+description: Detects creation of a local account (4720) or a member being added to the local Administrators group (4732). Attackers create rogue admin accounts for persistence.
+references:
+  - https://attack.mitre.org/techniques/T1136/001/
+author: Maaz Husain
+date: 2026-07-02
+tags:
+  - attack.persistence
+  - attack.t1136.001
+logsource:
+  product: windows
+  service: security
+detection:
+  selection_created:
+    EventID: 4720
+  selection_admin_added:
+    EventID: 4732
+    TargetUserName|contains: 'Admin'
+  condition: 1 of selection_*
+falsepositives:
+  - IT provisioning; correlate with change tickets
+level: high

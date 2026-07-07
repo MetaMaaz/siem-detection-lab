@@ -1,0 +1,24 @@
+title: Multiple Failed Logon Attempts (Possible Brute Force)
+id: 3fe0d696-43a2-45a0-a754-9d32d6f04e2c
+status: experimental
+description: |
+  Detects Windows failed logon events (Event ID 4625). Alert on volume:
+  the SIEM correlation layer (see wazuh/local_rules.xml) fires when 6+
+  failures occur within 120 seconds from the same source.
+references:
+  - https://attack.mitre.org/techniques/T1110/
+author: Maaz Husain
+date: 2026-07-02
+tags:
+  - attack.credential_access
+  - attack.t1110
+logsource:
+  product: windows
+  service: security
+detection:
+  selection:
+    EventID: 4625
+  condition: selection
+falsepositives:
+  - Users mistyping passwords; tune threshold and whitelist service accounts
+level: medium

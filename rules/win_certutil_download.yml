@@ -1,0 +1,27 @@
+title: Certutil Used to Download Files (LOLBin Abuse)
+id: 68adc470-564d-458b-905c-b693d325e5c5
+status: experimental
+description: Detects certutil.exe abused as a downloader - a living-off-the-land technique to fetch payloads with a trusted Windows binary.
+references:
+  - https://attack.mitre.org/techniques/T1105/
+  - https://lolbas-project.github.io/lolbas/Binaries/Certutil/
+author: Maaz Husain
+date: 2026-07-02
+tags:
+  - attack.command_and_control
+  - attack.t1105
+logsource:
+  product: windows
+  category: process_creation
+detection:
+  selection_img:
+    Image|endswith: '\certutil.exe'
+  selection_cli:
+    CommandLine|contains:
+      - 'urlcache'
+      - '-split'
+      - 'http'
+  condition: selection_img and selection_cli
+falsepositives:
+  - Very rare legitimate use; certutil downloading anything warrants investigation
+level: high

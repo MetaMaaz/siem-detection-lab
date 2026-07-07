@@ -1,0 +1,30 @@
+title: Suspicious Access to LSASS Memory (Credential Dumping)
+id: dadaa1a1-e4c9-4407-8592-2965b2754f56
+status: experimental
+description: Detects processes opening a handle to lsass.exe with memory-read access (Sysmon Event ID 10), the behaviour behind Mimikatz-style credential dumping.
+references:
+  - https://attack.mitre.org/techniques/T1003/001/
+author: Maaz Husain
+date: 2026-07-02
+tags:
+  - attack.credential_access
+  - attack.t1003.001
+logsource:
+  product: windows
+  category: process_access
+detection:
+  selection:
+    TargetImage|endswith: '\lsass.exe'
+    GrantedAccess|contains:
+      - '0x1010'
+      - '0x1410'
+      - '0x1fffff'
+  filter_known:
+    SourceImage|endswith:
+      - '\MsMpEng.exe'
+      - '\csrss.exe'
+      - '\wininit.exe'
+  condition: selection and not filter_known
+falsepositives:
+  - AV/EDR agents and some monitoring tools read LSASS; extend the filter list after baselining
+level: critical
