@@ -1,10 +1,11 @@
 # SIEM Detection Lab
 
 A home SOC lab that ingests Windows + Sysmon telemetry into **Wazuh**, then
-detects eight real adversary techniques mapped to **MITRE ATT&CK**. Every
+detects ten real adversary techniques mapped to **MITRE ATT&CK**. Every
 detection ships as both a portable **Sigma** rule (industry-standard format)
 and a working **Wazuh** rule, is simulated with **Atomic Red Team**, and is
-documented with an analyst-style investigation writeup.
+documented with an analyst-style investigation writeup. One high-confidence
+detection is wired to an automated **active response**.
 
 Built to practise the Tier 1 SOC workflow end to end: *simulate an attack →
 watch the telemetry land → detect it → investigate it → tune it.*
@@ -50,18 +51,25 @@ watch the telemetry land → detect it → investigate it → tune it.*
 | 6 | Certutil download (LOLBin) | T1105 | Sysmon 1 | `win_certutil_download.yml` | 100105 |
 | 7 | Security log cleared | T1070.001 | Security 1102 | `win_security_log_cleared.yml` | 100106 |
 | 8 | LSASS memory access | T1003.001 | Sysmon 10 | `win_lsass_memory_access.yml` | 100107 |
+| 9 | Scheduled task created | T1053.005 | Sysmon 1 | `win_scheduled_task_creation.yml` | 100109 |
+| 10 | PowerShell outbound connection | T1071.001 | Sysmon 3 | `win_powershell_network_connection.yml` | 100110 |
+
+Rule **100108** adds a locale-independent check for accounts added to the local
+Administrators group (4732), and drives the **active response** in
+`docs/04-active-response.md` — the lab's one automated containment action.
 
 ## Repo layout
 
 ```
 siem-detection-lab/
 ├── README.md
-├── rules/                 # 8 portable Sigma rules
+├── rules/                 # 10 portable Sigma rules
 ├── wazuh/local_rules.xml  # Wazuh equivalents (rule IDs 100100+)
 ├── docs/
 │   ├── 01-lab-setup.md    # build the VMs, install Wazuh + Sysmon
 │   ├── 02-simulation.md   # Atomic Red Team command per detection
-│   └── 03-investigation-template.md
+│   ├── 03-investigation-template.md
+│   └── 04-active-response.md  # auto-disable a rogue admin account
 ├── investigations/        # your writeups + screenshots go here
 └── .github/workflows/validate-sigma.yml
 ```

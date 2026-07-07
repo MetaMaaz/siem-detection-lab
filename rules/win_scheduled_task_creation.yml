@@ -1,0 +1,23 @@
+title: Scheduled Task Created via Schtasks
+id: 9679618b-e8cd-45f4-8636-5dcc53cdfa36
+status: experimental
+description: Detects schtasks.exe creating a new scheduled task - one of the most common persistence and lateral-movement primitives on Windows.
+references:
+  - https://attack.mitre.org/techniques/T1053/005/
+author: Maaz Husain
+date: 2026-07-08
+tags:
+  - attack.persistence
+  - attack.t1053.005
+logsource:
+  product: windows
+  category: process_creation
+detection:
+  selection_img:
+    Image|endswith: '\schtasks.exe'
+  selection_cli:
+    CommandLine|contains: '/create'
+  condition: selection_img and selection_cli
+falsepositives:
+  - Software installers and admin scripts create tasks routinely; baseline task names and creating users
+level: medium

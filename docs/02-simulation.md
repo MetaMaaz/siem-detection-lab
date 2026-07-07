@@ -27,6 +27,11 @@ after with `-Cleanup`.
 | 6 | Certutil download (T1105) | `Invoke-AtomicTest T1105` | `certutil -urlcache -split -f https://example.com/x.txt x.txt` |
 | 7 | Log cleared (T1070.001) | `Invoke-AtomicTest T1070.001` | `wevtutil cl Security` (needs admin) |
 | 8 | LSASS access (T1003.001) | `Invoke-AtomicTest T1003.001 -TestNumbers 1` | Use ProcDump: `procdump -ma lsass.exe out.dmp` |
+| 9 | Scheduled task (T1053.005) | `Invoke-AtomicTest T1053.005` | `schtasks /create /tn evil /tr calc.exe /sc onlogon` |
+| 10 | PowerShell outbound (T1071.001) | — | `powershell -c "(New-Object Net.WebClient).DownloadString('https://example.com')"` |
+
+Detection 5 also fires the active response in `04-active-response.md` — the
+`hacker` account is auto-disabled after rule 100108 hits.
 
 ## Workflow per detection
 

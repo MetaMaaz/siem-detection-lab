@@ -83,4 +83,22 @@
     <mitre><id>T1003.001</id></mitre>
   </rule>
 
+  <!-- T1053.005 Scheduled task created via schtasks -->
+  <rule id="100109" level="8">
+    <if_group>sysmon_event1</if_group>
+    <field name="win.eventdata.image" type="pcre2">(?i)\\schtasks\.exe$</field>
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)/create</field>
+    <description>Scheduled task created via schtasks.exe - persistence (T1053.005)</description>
+    <mitre><id>T1053.005</id></mitre>
+  </rule>
+
+  <!-- T1071.001 PowerShell outbound network connection (Sysmon 3).
+       Noisy alone (level 6) - value is correlating with 100101 on the same host -->
+  <rule id="100110" level="6">
+    <if_group>sysmon_event3</if_group>
+    <field name="win.eventdata.image" type="pcre2">(?i)\\(powershell|pwsh)\.exe$</field>
+    <description>PowerShell initiated an outbound network connection (T1071.001)</description>
+    <mitre><id>T1071.001</id></mitre>
+  </rule>
+
 </group>

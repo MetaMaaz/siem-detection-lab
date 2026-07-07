@@ -1,0 +1,24 @@
+title: PowerShell Initiating a Network Connection
+id: eb2573fc-8c21-42c4-9912-53f3205668c4
+status: experimental
+description: Detects powershell.exe making an outbound network connection (Sysmon Event ID 3). Pairs with the encoded-command rule - a download cradle that fires both alerts on the same host is a strong C2/ingress signal.
+references:
+  - https://attack.mitre.org/techniques/T1071/001/
+author: Maaz Husain
+date: 2026-07-08
+tags:
+  - attack.command_and_control
+  - attack.t1071.001
+logsource:
+  product: windows
+  category: network_connection
+detection:
+  selection:
+    Image|endswith:
+      - '\powershell.exe'
+      - '\pwsh.exe'
+    Initiated: 'true'
+  condition: selection
+falsepositives:
+  - Update mechanisms, PowerShell Gallery, admin remoting; noisy alone - treat as enrichment and correlate with process-creation alerts
+level: medium
