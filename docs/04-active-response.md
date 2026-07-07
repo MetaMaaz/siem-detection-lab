@@ -1,4 +1,4 @@
-# 04 — Active Response (detection → response)
+# 04: Active Response (detection to response)
 
 Wazuh can react to an alert, not just raise it. This lab wires one response:
 when an account is added to the local Administrators group (rule **100108**,
@@ -8,7 +8,7 @@ T1136.001), the manager tells the agent to disable that account.
 
 On the **manager**, add inside `<ossec_config>` in `/var/ossec/etc/ossec.conf`
 (the `disable-account` command ships with Wazuh, so only the trigger block is
-usually needed — check the `<command>` entry already exists):
+usually needed, so check the `<command>` entry already exists):
 
 ```xml
 <active-response>
@@ -21,8 +21,8 @@ usually needed — check the `<command>` entry already exists):
 
 Then restart the manager: `/var/ossec/bin/wazuh-control restart`
 
-- `location: local` — runs on the agent that raised the alert (the victim VM).
-- `timeout: 600` — re-enables the account after 10 minutes (stateful response),
+- `location: local` runs on the agent that raised the alert (the victim VM).
+- `timeout: 600` re-enables the account after 10 minutes (stateful response),
   so a lab mistake doesn't lock you out permanently.
 
 ## Test

@@ -1,8 +1,7 @@
-# 02 — Simulating the Attacks
+# 02: Simulating the Attacks
 
-Each detection has a matching simulation. Where possible use **Atomic Red
-Team** so your writeups can say "emulated with Atomic Red Team" (recruiters
-know the tool). Manual one-liners are given as a fallback.
+Each detection has a matching simulation. Use Atomic Red Team where possible;
+manual one-liners are given as a fallback.
 
 Install Atomic Red Team (elevated PowerShell, in the victim VM only):
 
@@ -30,7 +29,7 @@ after with `-Cleanup`.
 | 9 | Scheduled task (T1053.005) | `Invoke-AtomicTest T1053.005` | `schtasks /create /tn evil /tr calc.exe /sc onlogon` |
 | 10 | PowerShell outbound (T1071.001) | — | `powershell -c "(New-Object Net.WebClient).DownloadString('https://example.com')"` |
 
-Detection 5 also fires the active response in `04-active-response.md` — the
+Detection 5 also fires the active response in `04-active-response.md`: the
 `hacker` account is auto-disabled after rule 100108 hits.
 
 ## Workflow per detection

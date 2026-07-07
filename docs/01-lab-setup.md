@@ -1,4 +1,4 @@
-# 01 — Lab Setup
+# 01: Lab Setup
 
 Goal: a Wazuh manager receiving Windows + Sysmon telemetry from one victim VM.
 Budget ~1 hour. Needs ~8GB free RAM (4GB Windows, 4GB Wazuh).
@@ -14,7 +14,7 @@ docker compose -f generate-indexer-certs.yml run --rm generator
 docker compose up -d
 ```
 
-Dashboard: `https://<host-ip>` — default login `admin` / `SecretPassword`
+Dashboard: `https://<host-ip>`, default login `admin` / `SecretPassword`
 (change it in `docker-compose.yml` before starting for anything non-throwaway).
 
 Low on RAM? Run only the manager container and read alerts from
@@ -67,8 +67,8 @@ manager (Docker: `docker exec -it single-node-wazuh.manager-1 bash`), then:
 
 On the victim run `whoami` in PowerShell, then confirm a Sysmon Event ID 1
 appears in the dashboard (Security events, filter `data.win.system.eventID:1`).
-If it lands, the pipeline works — move on to `02-simulation.md`.
+If it lands, the pipeline works. Move on to `02-simulation.md`.
 
-> ponytail: single-node Docker + one victim is deliberately the smallest lab
-> that exercises every rule. Add a domain controller / attacker Kali VM later
-> only if you want AD-specific detections.
+A single-node Docker manager plus one victim is the smallest setup that
+exercises every rule. Add a domain controller or an attacker Kali VM later if
+you want AD-specific detections.

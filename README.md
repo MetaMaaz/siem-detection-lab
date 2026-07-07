@@ -2,10 +2,10 @@
 
 A home SOC lab that ingests Windows + Sysmon telemetry into **Wazuh**, then
 detects ten real adversary techniques mapped to **MITRE ATT&CK**. Every
-detection ships as both a portable **Sigma** rule (industry-standard format)
-and a working **Wazuh** rule, is simulated with **Atomic Red Team**, and is
-documented with an analyst-style investigation writeup. One high-confidence
-detection is wired to an automated **active response**.
+detection ships as both a portable **Sigma** rule and a working **Wazuh**
+rule, is simulated with **Atomic Red Team**, and is documented with an
+investigation writeup. One high-confidence detection is wired to an automated
+**active response**.
 
 Built to practise the Tier 1 SOC workflow end to end: *simulate an attack →
 watch the telemetry land → detect it → investigate it → tune it.*
@@ -36,7 +36,7 @@ watch the telemetry land → detect it → investigate it → tune it.*
                     └─────────────────────────────┘
 
    Attacks simulated on the victim with Atomic Red Team (one command per
-   ATT&CK technique) — no real malware required.
+   ATT&CK technique). No real malware required.
 ```
 
 ## Detections
@@ -54,9 +54,9 @@ watch the telemetry land → detect it → investigate it → tune it.*
 | 9 | Scheduled task created | T1053.005 | Sysmon 1 | `win_scheduled_task_creation.yml` | 100109 |
 | 10 | PowerShell outbound connection | T1071.001 | Sysmon 3 | `win_powershell_network_connection.yml` | 100110 |
 
-Rule **100108** adds a locale-independent check for accounts added to the local
-Administrators group (4732), and drives the **active response** in
-`docs/04-active-response.md` — the lab's one automated containment action.
+Rule 100108 adds a locale-independent check for accounts added to the local
+Administrators group (4732). It also drives the active response in
+`docs/04-active-response.md`, the lab's one automated containment action.
 
 ## Repo layout
 
