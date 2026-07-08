@@ -69,7 +69,8 @@ siem-detection-lab/
 │   ├── 01-lab-setup.md    # build the VMs, install Wazuh + Sysmon
 │   ├── 02-simulation.md   # Atomic Red Team command per detection
 │   ├── 03-investigation-template.md
-│   └── 04-active-response.md  # auto-disable a rogue admin account
+│   ├── 04-active-response.md  # auto-disable a rogue admin account
+│   └── 05-lab-walkthrough.md  # full build steps (macOS Apple Silicon)
 ├── investigations/        # your writeups + screenshots go here
 └── .github/workflows/validate-sigma.yml
 ```
