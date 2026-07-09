@@ -115,6 +115,23 @@ Best practice: once the Wazuh agent + Sysmon are installed and working, snapshot
 the VM in that clean state. Then reset is a one-click snapshot revert instead of
 re-running teardown each time.
 
+## Reusable baselines (skip the Phase 3 rebuild)
+
+Phase 3 is the slow part to redo — especially on ARM64, where Sysmon must be
+installed with `Sysmon64a.exe` and Smart App Control / LSA Protection get in the
+way. Don't rebuild it from the golden image every time. Keep two baselines:
+
+- **Golden** — pristine Windows, no Sysmon, no agent. The clean-room source.
+- **Lab-Ready** — a clone of golden that has completed Phase 3 (Sysmon +
+  audit policy + Wazuh agent enrolled + rules loaded) and then been reset with
+  the teardown above. This is what you revert to before each attack run.
+
+Workflow: clone golden → do Phase 3 once → run teardown → snapshot as
+**Lab-Ready**. From then on, "reset the lab" means revert to the Lab-Ready
+snapshot, not rebuild. Rebuild Lab-Ready from golden only when you want a newer
+Windows/Sysmon/agent version. When you retire a victim, also delete its stale
+agent from the manager (Server management → Endpoints) so it doesn't linger.
+
 ## Common gotchas
 
 - Agent won't connect: check the **Mac firewall** isn't blocking port 1514.
