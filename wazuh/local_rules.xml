@@ -52,8 +52,8 @@
 
   <!-- T1136.001 Member added to local Administrators (4732, group SID S-1-5-32-544) -->
   <rule id="100108" level="12">
-    <if_sid>60144</if_sid>   <!-- 4732 member added to security-enabled local group -->
-    <field name="win.eventdata.targetSid" type="pcre2">^S-1-5-32-544$</field>
+    <if_sid>60154</if_sid>   <!-- 60154 = Administrators group changed (636/4732); 60144 was wrong -->
+    <field name="win.system.eventID" type="pcre2">^4732$</field>   <!-- member added (not 4733 removed) -->
     <description>Account added to local Administrators group (T1136.001)</description>
     <mitre><id>T1136.001</id></mitre>
   </rule>
@@ -93,10 +93,14 @@
   </rule>
 
   <!-- T1071.001 PowerShell outbound network connection (Sysmon 3).
-       Noisy alone (level 6) - value is correlating with 100101 on the same host -->
+       Noisy alone (level 6) - value is correlating with 100101 on the same host.
+       KNOWN ISSUE (2026-07-09): confirmed Sysmon logs event 3 for powershell and
+       the agent forwards it, but this rule does not fire in the live lab - the
+       sysmon_event3 chain isn't matching the way sysmon_event1 does for 100101.
+       Needs a wazuh-logtest trace to resolve; 100101/100107/100108 validated live. -->
   <rule id="100110" level="6">
     <if_group>sysmon_event3</if_group>
-    <field name="win.eventdata.image" type="pcre2">(?i)\\(powershell|pwsh)\.exe$</field>
+    <field name="win.eventdata.image" type="pcre2">(?i)(powershell|pwsh)\.exe</field>
     <description>PowerShell initiated an outbound network connection (T1071.001)</description>
     <mitre><id>T1071.001</id></mitre>
   </rule>

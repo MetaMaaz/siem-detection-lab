@@ -58,6 +58,24 @@ Rule 100108 adds a locale-independent check for accounts added to the local
 Administrators group (4732). It also drives the active response in
 `docs/04-active-response.md`, the lab's one automated containment action.
 
+### Validated in the lab
+
+Three of the priority detections were run end-to-end against a live Windows 11
+victim and captured with alert screenshots and worked investigations:
+
+| Detection | Rule | ATT&CK | Writeup |
+|-----------|------|--------|---------|
+| PowerShell encoded command | 100101 | T1059.001 | [t1059-powershell-encoded.md](investigations/t1059-powershell-encoded.md) |
+| New local admin account | 100108 | T1136.001 | [t1136-new-local-admin.md](investigations/t1136-new-local-admin.md) |
+| LSASS memory access | 100107 | T1003.001 | [t1003-lsass-access.md](investigations/t1003-lsass-access.md) |
+
+Running the lab surfaced two real bugs — a wrong built-in parent rule
+(`if_sid 60144` → `60154`) and a Sysmon config gap that stopped LSASS access
+from being logged — both fixed and written up in
+[docs/06-detection-engineering-notes.md](docs/06-detection-engineering-notes.md).
+Rule 100110 (PowerShell outbound) is a documented known-issue pending a
+`wazuh-logtest` trace; see the same notes.
+
 ## Repo layout
 
 ```
@@ -70,8 +88,9 @@ siem-detection-lab/
 │   ├── 02-simulation.md   # Atomic Red Team command per detection
 │   ├── 03-investigation-template.md
 │   ├── 04-active-response.md  # auto-disable a rogue admin account
-│   └── 05-lab-walkthrough.md  # full build steps (macOS Apple Silicon)
-├── investigations/        # your writeups + screenshots go here
+│   ├── 05-lab-walkthrough.md  # full build steps (macOS Apple Silicon)
+│   └── 06-detection-engineering-notes.md  # live bugs found + fixed
+├── investigations/        # worked investigations + alert screenshots
 └── .github/workflows/validate-sigma.yml
 ```
 
