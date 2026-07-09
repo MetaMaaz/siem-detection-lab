@@ -94,6 +94,27 @@ Per detection: run it, filter the dashboard on `rule.id:1001xx` or
 detail (Cmd+Shift+4). Save to `investigations/img/` (e.g. `t1059-alert.png`,
 `t1003-alert.png`), then roll back the snapshot before the next attack.
 
+## 6. Reset the lab between runs
+
+Capturing the credential-access detection meant disabling several Windows
+controls so the attacks would land. Restore them afterwards (or just revert to a
+clean snapshot). In the victim's admin PowerShell:
+
+```powershell
+net user hacker /delete                         # remove the rogue admin account
+Remove-Item $env:TEMP\lsass*.dmp -ErrorAction SilentlyContinue   # delete lsass dumps
+Remove-Item "$env:TEMP\Procdump" -Recurse -Force -ErrorAction SilentlyContinue
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa" -Name "RunAsPPL" -Value 1 -Type DWord -Force  # re-enable LSA Protection (reboot to apply)
+```
+
+Then in Windows Security (GUI), turn **Real-time protection** and **Tamper
+Protection** back **On**. Smart App Control only re-enables via a Windows
+reinstall (it's one-way), so leave it off on a throwaway lab VM.
+
+Best practice: once the Wazuh agent + Sysmon are installed and working, snapshot
+the VM in that clean state. Then reset is a one-click snapshot revert instead of
+re-running teardown each time.
+
 ## Common gotchas
 
 - Agent won't connect: check the **Mac firewall** isn't blocking port 1514.
