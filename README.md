@@ -109,4 +109,4 @@ incident investigation · alert tuning / false-positive analysis
 
 ## License
 
-MIT
+MIT — see [LICENSE](LICENSE).
