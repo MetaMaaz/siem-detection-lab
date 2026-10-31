@@ -1,4 +1,4 @@
-"""Minimal tool-calling agent on a local Ollama model.
+"""Minimal tool-calling agent on a local model (LM Studio or Ollama, OpenAI-compatible API).
 
 Every tool call writes one JSON line to AGENT_LOG, including provenance:
 what kinds of content were in the model's context when it chose the call.
@@ -16,8 +16,9 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
-OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434")
-MODEL = os.environ.get("AGENT_MODEL", "qwen2.5:7b")
+# LM Studio: http://localhost:1234/v1   Ollama: http://localhost:11434/v1
+LLM_URL = os.environ.get("LLM_URL", "http://localhost:1234/v1")
+MODEL = os.environ.get("AGENT_MODEL", "qwen2.5-7b-instruct")
 AGENT_ID = os.environ.get("AGENT_ID", "lab-agent-01")
 LOG_PATH = Path(os.environ.get("AGENT_LOG", "logs/agent_tool_calls.jsonl"))
 MAX_STEPS = 15      # model turns per task
@@ -112,16 +113,16 @@ def log_event(event):
 
 # ---- agent loop ----------------------------------------------------------
 
-def ollama_chat(messages):
+def llm_chat(messages):
     body = json.dumps({"model": MODEL, "messages": messages, "tools": TOOL_SCHEMAS, "stream": False,
-                       "options": {"temperature": 0, "seed": 42}}).encode()
-    req = urllib.request.Request(f"{OLLAMA_URL}/api/chat", data=body,
+                       "temperature": 0, "seed": 42}).encode()
+    req = urllib.request.Request(f"{LLM_URL}/chat/completions", data=body,
                                  headers={"Content-Type": "application/json"})
     with urllib.request.urlopen(req, timeout=300) as r:
-        return json.load(r)["message"]
+        return json.load(r)["choices"][0]["message"]
 
 
-def run_task(task, user_task_id, chat=ollama_chat):
+def run_task(task, user_task_id, chat=llm_chat):
     session_id = str(uuid.uuid4())
     sources = {"user"}
     seq = 0
@@ -132,7 +133,7 @@ def run_task(task, user_task_id, chat=ollama_chat):
         messages.append(msg)
         calls = msg.get("tool_calls") or []
         if not calls:
-            return msg.get("content", "")
+            return msg.get("content") or ""
 
         for call in calls:
             seq += 1
@@ -153,7 +154,7 @@ def run_task(task, user_task_id, chat=ollama_chat):
                 "untrusted_content_in_context": bool(sources & UNTRUSTED),
             }
             try:
-                if isinstance(args, str):   # some models emit arguments as a JSON string
+                if isinstance(args, str):   # the OpenAI format sends arguments as a JSON string
                     args = json.loads(args)
                     event["tool_args"] = _log_args(name, args)
                 if name not in TOOLS:
@@ -167,7 +168,7 @@ def run_task(task, user_task_id, chat=ollama_chat):
                 event["result_status"] = "error"
             event["bytes_returned"] = len(out.encode())
             log_event(event)
-            messages.append({"role": "tool", "tool_name": name, "content": out[:MAX_OUT]})
+            messages.append({"role": "tool", "tool_call_id": call.get("id", ""), "content": out[:MAX_OUT]})
 
     return "stopped: max steps reached"
 

@@ -6,21 +6,23 @@ measured results land in later phases.
 
 ## Run
 
-Ollama runs natively on the host; the agent runs in a container so
-`run_shell` and `write_file` only touch the sandbox.
+The model server runs natively on the host (LM Studio by default, Ollama also
+works since both expose the OpenAI chat-completions API). The agent runs in a
+container so `run_shell` and `write_file` only touch the sandbox.
 
 ```bash
-ollama pull qwen2.5:7b
+# Load a tool-capable model in LM Studio and start its server (or: ollama pull qwen2.5:7b).
+# Set AGENT_MODEL to the id shown by: curl -s localhost:1234/v1/models
 docker build -t lab-agent ai-agent-detection
 mkdir -p ai-agent-detection/logs/live
 docker run --rm -v "$PWD/ai-agent-detection/logs/live:/logs" lab-agent \
   "list your home directory and summarise it" --task-id B000
 ```
 
-Settings come from environment variables: `AGENT_MODEL`, `OLLAMA_URL`,
+Settings come from environment variables: `AGENT_MODEL`, `LLM_URL`,
 `AGENT_ID` and `AGENT_LOG`.
 
-Tests need no Ollama: `python ai-agent-detection/tests/test_agent.py`
+Tests need no model server: `python ai-agent-detection/tests/test_agent.py`
 
 ## Log schema
 
@@ -33,7 +35,7 @@ when it chose the call.
 | `timestamp` | `2026-10-31T18:46:15.082Z` | UTC, ms |
 | `session_id` | UUIDv4 | one per task run; correlation key |
 | `agent_id` | `lab-agent-01` | |
-| `model` | `qwen2.5:7b` | to compare susceptibility across models |
+| `model` | `qwen2.5-7b-instruct` | to compare susceptibility across models |
 | `user_task_id` | `B001`, `A1-03` | links to the payload / benign task set |
 | `seq` | `3` | tool call order within the session |
 | `tool_name` | `read_file` | `read_file`, `write_file`, `list_dir`, `http_request`, `run_shell` |
