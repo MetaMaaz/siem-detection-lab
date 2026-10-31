@@ -2,3 +2,5 @@
 Thumbs.db
 *.dmp
 *.evtx
+ai-agent-detection/logs/live/
+__pycache__/
