@@ -2,7 +2,8 @@
 
 Detecting a hijacked AI agent from its tool-call logs. Work in progress:
 Phase 1 (agent, tools, logging) is done. Threat model, detections and
-measured results land in later phases.
+measured results land in later phases. Decisions, live findings and open
+questions are logged as they happen in [NOTES.md](NOTES.md).
 
 ## Run
 
